@@ -1,0 +1,26 @@
+{
+  "name": "simplechat",
+  "version": "1.0.0",
+  "description": "SimpleChat is the ultimate destination for connecting with friends, family, and like-minded individuals. With our easy-to-use platform, you can engage in one-on-one conversations or join group chats with people from around the world. Our user-friendly interface and fast loading speed make it easy for you to navigate and find the people you want to talk to. No need to worry about complicated sign-up processes or hidden fees, SimpleChat is completely free to use. Start chatting now and expand your social circle!",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "sanskar singh",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "colors": "^1.4.0",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "express-async-handler": "^1.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.3.0",
+    "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
