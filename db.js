@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 const colors = require("colors");
 
-const dbConnect = async () => {
+const dbConnect = async (user, password) => {
   try {
-    const connectionString = await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017", {
+    const connectionString = await mongoose.connect(`mongodb+srv://${user}:${password}@cluster0.icetgwg.mongodb.net/?retryWrites=true&w=majority` || "mongodb://localhost:27017", {
       useUnifiedTopology: true,
       useNewUrlParser: true,
     });

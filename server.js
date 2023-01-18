@@ -7,9 +7,10 @@ const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
-const path = require("path");
 
-dbConnect();
+
+
+dbConnect(process.env.DB_USERNAME,process.env.DB_PASSWORD);
 const app = express();
 app.use(express.json());
 
@@ -21,20 +22,13 @@ app.use("/api/notification", notificationRoutes);
 
 // -----------------------------------------------------------------------------
 
-const __dirname$ = path.resolve();
-if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname$, "/client/build")));
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(__dirname$, "client", "build", "index.html"));
-  });
-} else {
-  // First route
+
   app.get("/", (req, res) => {
     res.status(200).json({
       message: "Hello from simplechat App server",
     });
   });
-}
+
 
 // -----------------------------------------------------------------------------
 
@@ -44,9 +38,8 @@ app.use(errorHandler);
 
 const server = app.listen(process.env.PORT || 5000, () => {
   console.log(
-    colors.brightMagenta(`\nServer is UP on PORT ${process.env.SERVER_PORT || 5000}`)
+    colors.brightMagenta(`\nServer is UP on PORT ${process.env.PORT || 5000}`)
   );
-  console.log(`Visit  ` + colors.underline.blue(`localhost:${5000}`));
 });
 
 // require server and make io 
