@@ -1,4 +1,7 @@
 const express = require("express");
+const app = express();
+const server = require("http").createServer(app);
+
 const colors = require("colors");
 const dbConnect = require("./db.js");
 require("dotenv").config();
@@ -9,9 +12,9 @@ const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 
 
-
+// connecting database 
 dbConnect(process.env.DB_USERNAME,process.env.DB_PASSWORD);
-const app = express();
+
 app.use(express.json());
 
 // Main routes
@@ -36,7 +39,8 @@ app.use("/api/notification", notificationRoutes);
 app.use(routeNotFound);
 app.use(errorHandler);
 
-const server = app.listen(process.env.PORT || 5000, () => {
+// donot listen on app  listen on server where io is injected (not on main server)
+ server.listen(process.env.PORT || 5000, () => {
   console.log(
     colors.brightMagenta(`\nServer is UP on PORT ${process.env.PORT || 5000}`)
   );
@@ -46,17 +50,19 @@ const server = app.listen(process.env.PORT || 5000, () => {
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "*",
+    origin: "*",  //allow from anywhere
   },
 });
 
 io.on("connection", (socket) => {
   console.log("Sockets are in action");
+
   socket.on("setup", (userData) => {
     socket.join(userData._id);
     console.log(userData.name, "connected");
     socket.emit("connected");
   });
+
   socket.on("join chat", (room) => {
     socket.join(room);
     console.log("User joined room: " + room);
@@ -70,7 +76,7 @@ io.on("connection", (socket) => {
       socket.in(user._id).emit("message received", newMessage);
     });
     socket.on("typing", (room) => {
-      socket.in(room).emit("typing");
+      socket.in(room).emit("typing");  // server pr 'emit' kiya to client pr 'on' krege 
     });
     socket.on("stop typing", (room) => {
       socket.in(room).emit("stop typing");
@@ -81,3 +87,5 @@ io.on("connection", (socket) => {
     socket.leave(userData._id);
   });
 });
+
+
