@@ -1,7 +1,6 @@
 const express = require("express");
 const app = express();
-const server = require("http").createServer(app);
-
+const cors = require('cors');
 const colors = require("colors");
 const dbConnect = require("./db.js");
 require("dotenv").config();
@@ -10,21 +9,24 @@ const userRoutes = require("./routes/userRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
+const { instrument } = require("@socket.io/admin-ui");
+
+
 
 
 // connecting database 
 dbConnect(process.env.DB_USERNAME,process.env.DB_PASSWORD);
 
 app.use(express.json());
-
+app.use(cors())
 // Main routes
 app.use("/api/users", userRoutes);
 app.use("/api/chats", chatRoutes);
 app.use("/api/message", messageRoutes);
 app.use("/api/notification", notificationRoutes);
 
-// -----------------------------------------------------------------------------
 
+// -----------------------------------------------------------------------------
 
   app.get("/", (req, res) => {
     res.status(200).json({
@@ -39,6 +41,8 @@ app.use("/api/notification", notificationRoutes);
 app.use(routeNotFound);
 app.use(errorHandler);
 
+const server = require("http").createServer(app);
+
 // donot listen on app  listen on server where io is injected (not on main server)
  server.listen(process.env.PORT || 5000, () => {
   console.log(
@@ -50,21 +54,31 @@ app.use(errorHandler);
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: "*",  //allow from anywhere
+    // origin: "*",  //allow from anywhere
+    origin: ["https://admin.socket.io", "http://localhost:3000", "https://simplechat-06cd.onrender.com"], 
+      credentials: true
   },
 });
+
+// io.emit() is for broadcasting purpose including sender
+// socket.broadcast.emit() for broadcast exclude sender
+
 
 io.on("connection", (socket) => {
   console.log("Sockets are in action");
 
+  //listening a custom event 
   socket.on("setup", (userData) => {
+    // You can call join to subscribe the socket to a given channel
+    // And then simply use to or in (they are the same) when broadcasting or emitting
+
     socket.join(userData._id);
     console.log(userData.name, "connected");
     socket.emit("connected");
   });
 
   socket.on("join chat", (room) => {
-    socket.join(room);
+    socket.join(room);  //reciecer ke id se room bna
     console.log("User joined room: " + room);
   });
   socket.on("new message", (newMessage) => {
@@ -88,4 +102,19 @@ io.on("connection", (socket) => {
   });
 });
 
+// -----------------------------------------------------------------------------
+// for socket admin ui 
 
+// instrument(io, {
+//   auth: {
+//     type: "basic",
+//   username: process.env.SOCKET_USERNAME,
+//   password: process.env.SOCKET_PASSWORD
+// },
+//   mode: "development",
+// });
+
+// instrument(io, {
+//   auth: false,
+//   mode: "development",
+// });
